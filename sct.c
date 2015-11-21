@@ -15,21 +15,13 @@
  * - return 0
  */
 
-#include <inttypes.h>
 #include <math.h>
-#include <stdarg.h>
-#include <stdint.h>
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <strings.h>
 
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
-#include <X11/Xlibint.h>
 #include <X11/Xproto.h>
 #include <X11/extensions/Xrandr.h>
-#include <X11/extensions/Xrender.h>
 
 /* cribbed from redshift, but truncated with 500K steps */
 static const struct { float r; float g; float b; } whitepoints[] = {
@@ -68,11 +60,8 @@ sct_for_screen(Display *dpy, int screen, int temp)
 	double gammag = AVG(g);
 	double gammab = AVG(b);
 
-	int num_crtcs = res->ncrtc;
 	for (int c = 0; c < res->ncrtc; c++) {
 		int crtcxid = res->crtcs[c];
-		XRRCrtcInfo *crtc_info = XRRGetCrtcInfo(dpy, res, crtcxid);
-
 		int size = XRRGetCrtcGammaSize(dpy, crtcxid);
 
 		XRRCrtcGamma *crtc_gamma = XRRAllocGamma(size);
@@ -83,8 +72,8 @@ sct_for_screen(Display *dpy, int screen, int temp)
 			crtc_gamma->green[i] = g * gammag;
 			crtc_gamma->blue[i] = g * gammab;
 		}
-		XRRSetCrtcGamma(dpy, crtcxid, crtc_gamma);
 
+		XRRSetCrtcGamma(dpy, crtcxid, crtc_gamma);
 		XFree(crtc_gamma);
 	}
 }
@@ -106,6 +95,6 @@ main(int argc, char **argv)
 
 	XCloseDisplay(dpy);
 
-	return 0;
+	return EXIT_SUCCESS;
 }
 
