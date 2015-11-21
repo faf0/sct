@@ -11,7 +11,9 @@ Minor modifications were made in order to get sct to:
 - iterate over all screens of the default display and change the color
   temperature
 - free the Display structure
-- return 0
+- fix memleaks
+- clean up code
+- return EXIT_SUCCESS
 
 # Installation
 

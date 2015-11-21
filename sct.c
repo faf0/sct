@@ -11,8 +11,9 @@
  * - compile on Ubuntu 14.04
  * - iterate over all screens of the default display and change the color
  *   temperature
- * - free the Display structure
- * - return 0
+ * - fix memleaks
+ * - clean up code
+ * - return EXIT_SUCCESS
  */
 
 #include <math.h>
@@ -76,6 +77,8 @@ sct_for_screen(Display *dpy, int screen, int temp)
 		XRRSetCrtcGamma(dpy, crtcxid, crtc_gamma);
 		XFree(crtc_gamma);
 	}
+
+	XFree(res);
 }
 
 int
