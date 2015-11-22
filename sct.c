@@ -14,6 +14,8 @@
  * - fix memleaks
  * - clean up code
  * - return EXIT_SUCCESS
+ *
+ * Public domain, do as you wish.
  */
 
 #include <math.h>
