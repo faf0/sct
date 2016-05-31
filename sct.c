@@ -19,6 +19,7 @@
  */
 
 #include <math.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 #include <X11/Xatom.h>
@@ -87,6 +88,11 @@ int
 main(int argc, char **argv)
 {
 	Display *dpy = XOpenDisplay(NULL);
+	if (!dpy) {
+		perror("XOpenDisplay(NULL) failed");
+		fprintf(stderr, "Make sure DISPLAY is set correctly.\n");
+		return EXIT_FAILURE;
+	}
 	int screens = XScreenCount(dpy);
 
 	int temp = 6500;
