@@ -1,0 +1,17 @@
+PROJECT: https://github.com/faf0/sct
+
+1.3: zvezdochiot on 02 Jan 2019
+* Rename utilites for X11
+* Add -h option to print usage information
+* Add license documentation
+* Add changelog
+* Add man
+
+1.2: faf0 on 31 May 2016
+* Fix crash when DISPLAY env variable is set to an invalid value
+
+1.1: faf0 on 21 Nov 2015
+* Fix memleak
+
+1.0: faf0 on 21 Nov 2015
+* Initial
