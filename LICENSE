@@ -1,0 +1,11 @@
+This project is public domain, do as you wish
+
+The whitepoints data within sct.c has been released into the public domain 
+by Ingo Thies:
+"I have calculated the table by following mathematical rules of color
+ integration and conversion from the CIE 1931 color space to sRGB.
+
+ I doubt that a numerically computed color table is copyrightable at all
+ (in contrast to the actual software implementation). However, if it is
+ indeed copyrightable, I have no problem with releasing it into the
+ public domain."

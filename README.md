@@ -1,6 +1,6 @@
 # About
 
-Sct (set color temperature) is a UNIX tool which allows you to set the color
+Xsct (X11 set color temperature) is a UNIX tool which allows you to set the color
 temperature of your screen. It is simpler than Redshift and f.lux.
 
 Original code was published by Ted Unangst:
@@ -20,16 +20,16 @@ Minor modifications were made in order to get sct to:
 Compile the code using the following command:
 
 ~~~
-cc -std=c99 -O2 -I /usr/X11R6/include -o sct sct.c -L /usr/X11R6/lib -lm -lX11 -lXrandr
+cc -std=c99 -O2 -I /usr/X11R6/include sct.c -o xsct -L /usr/X11R6/lib -lX11 -lXrandr
 ~~~
 
 Execute sct using the following command:
 
 ~~~
-./sct 3700
+./xsct 3700
 ~~~
 
 The first parameter (`3700` above) denotes the color temperature and can be
 between `1000` and `10000`.
-If `sct` is called without parameters, sct sets the color temperature to `6500`.
+If `xsct` is called without parameters, sct sets the color temperature to `6500`.
 
