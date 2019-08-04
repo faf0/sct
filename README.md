@@ -30,6 +30,10 @@ Execute sct using the following command:
 ~~~
 
 The first parameter (`3700` above) denotes the color temperature and can be
-between `1000` and `10000`.
-If `xsct` is called without parameters, sct sets the color temperature to `6500`.
+between `1000` and `10000`.  
+If `xsct` is called with parameter 0, the color temperature is set to `6500`.  
+If `xsct` is called without parameters, the current display temperature is estimated.
 
+---
+
+https://github.com/faf0/sct/
