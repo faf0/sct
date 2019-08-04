@@ -31,7 +31,7 @@ static void usage()
 {
     printf("Usage: xsct [temperature]\n"
         "Temperatures must be in a range from 1000-10000\n"
-        "If argument are 0 xsct resets the display to the default temperature (6500K)\n"
+        "If the argument is 0, xsct resets the display to the default temperature (6500K)\n"
         "If no arguments are passed, xsct estimates the current display temperature\n"
         "If -h or --help is passed xsct will display this usage information\n");
 }
@@ -59,12 +59,12 @@ static const struct { float r; float g; float b; } whitepoints[] = {
     { 0.78988728,  0.86491137,  1.00000000, }, /* 10000K */
     { 0.77442176,  0.85453121,  1.00000000, },
 };
-#define TEMPERATUREDEFAULT 6500
-#define TEMPERATUREMIN     1000
-#define TEMPERATUREMAX     10000
-#define TEMPERATURESTEP    500
-#define GAMMAMULT          65535.0
-#define AVG(c,temp,ratio) whitepoints[(temp) / TEMPERATURESTEP].c * (1 - (ratio)) + whitepoints[(temp) / TEMPERATURESTEP + 1].c * (ratio)
+#define TEMPERATURE_DEFAULT 6500
+#define TEMPERATURE_MIN     1000
+#define TEMPERATURE_MAX     10000
+#define TEMPERATURE_STEP    500
+#define GAMMA_MULT          65535.0
+#define AVG(c,temp,ratio) whitepoints[(temp) / TEMPERATURE_STEP].c * (1 - (ratio)) + whitepoints[(temp) / TEMPERATURE_STEP + 1].c * (ratio)
 
 static int get_sct_for_screen(Display *dpy, int screen)
 {
@@ -77,25 +77,25 @@ static int get_sct_for_screen(Display *dpy, int screen)
 
     int n = res->ncrtc;
     ts = 0.0;
-    if (n > 0)
+    for (int c = 0; c < n; c++)
     {
-        for (int c = 0; c < n; c++)
-        {
-            int crtcxid = res->crtcs[c];
-            XRRCrtcGamma *crtc_gamma = XRRGetCrtcGamma (dpy, crtcxid);
-            int size = crtc_gamma-> size;
+        int crtcxid = res->crtcs[c];
+        XRRCrtcGamma *crtc_gamma = XRRGetCrtcGamma(dpy, crtcxid);
+        int size = crtc_gamma->size;
 
-            double g = size / (size - 1) / GAMMAMULT;
-            gammar = crtc_gamma->red[size - 1] * g;
-            gammag = crtc_gamma->green[size - 1] * g;
-            gammab = crtc_gamma->blue[size - 1] * g;
+        if (size > 0)
+        {
+            double g_inv = (size + 1) / size / GAMMA_MULT;
+            gammar = crtc_gamma->red[size - 1] * g_inv;
+            gammag = crtc_gamma->green[size - 1] * g_inv;
+            gammab = crtc_gamma->blue[size - 1] * g_inv;
             t = (64465 - 109049 * gammar + 46013 * gammar * gammar -
                  4322 * gammag + 10708 * gammag * gammag -
                  2662 * gammab + 1355 * gammab * gammab);
             ts += t;
-
-            XFree(crtc_gamma);
         }
+
+        XFree(crtc_gamma);
     }
     temp = (int)(ts / (double)n);
 
@@ -108,33 +108,30 @@ static void sct_for_screen(Display *dpy, int screen, int temp)
     Window root = RootWindow(dpy, screen);
     XRRScreenResources *res = XRRGetScreenResourcesCurrent(dpy, root);
 
-    temp -= TEMPERATUREMIN;
-    double ratio = temp % TEMPERATURESTEP / TEMPERATURESTEP;
+    temp -= TEMPERATURE_MIN;
+    double ratio = temp % TEMPERATURE_STEP / TEMPERATURE_STEP;
     double gammar = AVG(r, temp, ratio);
     double gammag = AVG(g, temp, ratio);
     double gammab = AVG(b, temp, ratio);
 
     int n = res->ncrtc;
-    if (n > 0)
+    for (int c = 0; c < n; c++)
     {
-        for (int c = 0; c < n; c++)
+        int crtcxid = res->crtcs[c];
+        int size = XRRGetCrtcGammaSize(dpy, crtcxid);
+
+        XRRCrtcGamma *crtc_gamma = XRRAllocGamma(size);
+
+        for (int i = 0; i < size; i++)
         {
-            int crtcxid = res->crtcs[c];
-            int size = XRRGetCrtcGammaSize(dpy, crtcxid);
-
-            XRRCrtcGamma *crtc_gamma = XRRAllocGamma(size);
-
-            for (int i = 0; i < size; i++)
-            {
-                double g = GAMMAMULT * i / size;
-                crtc_gamma->red[i] = g * gammar;
-                crtc_gamma->green[i] = g * gammag;
-                crtc_gamma->blue[i] = g * gammab;
-            }
-
-            XRRSetCrtcGamma(dpy, crtcxid, crtc_gamma);
-            XFree(crtc_gamma);
+            double g = GAMMA_MULT * i / size;
+            crtc_gamma->red[i] = g * gammar;
+            crtc_gamma->green[i] = g * gammag;
+            crtc_gamma->blue[i] = g * gammab;
         }
+
+        XRRSetCrtcGamma(dpy, crtcxid, crtc_gamma);
+        XFree(crtc_gamma);
     }
 
     XFree(res);
@@ -150,7 +147,7 @@ int main(int argc, char **argv)
     }
     int screens = XScreenCount(dpy);
 
-    int temp = TEMPERATUREDEFAULT;
+    int temp = TEMPERATURE_DEFAULT;
     if (argc > 1)
     {
         if (!strcmp(argv[1],"-h") || !strcmp(argv[1],"--help"))
@@ -158,8 +155,8 @@ int main(int argc, char **argv)
             usage();
         } else {
             temp = atoi(argv[1]);
-            if (temp < TEMPERATUREMIN || temp > TEMPERATUREMAX)
-                temp = TEMPERATUREDEFAULT;
+            if (temp < TEMPERATURE_MIN || temp > TEMPERATURE_MAX)
+                temp = TEMPERATURE_DEFAULT;
 
             for (int screen = 0; screen < screens; screen++)
                 sct_for_screen(dpy, screen, temp);
