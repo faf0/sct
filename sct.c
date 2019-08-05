@@ -171,7 +171,7 @@ static int get_sct_for_screen(Display *dpy, int screen)
 
         XFree(crtc_gamma);
     }
-    temp = 100 * round((int)(ts / (double)n) / 100.0);
+    temp = (int)(ts / (double)n * 0.01 + 0.5) * 100;
 
     XFree(res);
     return temp;
