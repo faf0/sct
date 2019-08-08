@@ -1,10 +1,10 @@
 PROJECT: https://github.com/faf0/sct
 
 1.5: zvezdochiot on 08 Aug 2019
-* Option --verbose for debug
+* Option --verbose to display debugging information
 
 1.5: zvezdochiot on 07 Aug 2019
-* Approximation of the `redshift` table (no limits)
+* Approximation of the `redshift` table from https://github.com/jonls/redshift/blob/04760afe31bff5b26cf18fe51606e7bdeac15504/src/colorramp.c#L30-L273 without limits
 
 1.4: zvezdochiot on 04 Aug 2019
 * Read current temperature
