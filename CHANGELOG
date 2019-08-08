@@ -1,5 +1,8 @@
 PROJECT: https://github.com/faf0/sct
 
+1.5: zvezdochiot on 08 Aug 2019
+* Option --verbose for debug
+
 1.5: zvezdochiot on 07 Aug 2019
 * Approximation of the `redshift` table (no limits)
 

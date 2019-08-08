@@ -31,13 +31,15 @@
 #include <string.h>
 #include <math.h>
 
-static void usage()
+static void usage(char * pname)
 {
-    printf("Usage: xsct [temperature]\n"
-        "Temperatures must be in a range from 1000-10000\n"
-        "If the argument is 0, xsct resets the display to the default temperature (6500K)\n"
-        "If no arguments are passed, xsct estimates the current display temperature\n"
-        "If -h or --help is passed xsct will display this usage information\n");
+    printf("Xsct (1.5)\n"
+        "Usage: %s [options] [temperature]\n"
+        "\tIf the argument is 0, xsct resets the display to the default temperature (6500K)\n"
+        "\tIf no arguments are passed, xsct estimates the current display temperature\n"
+        "Options:\n"
+        "\t-v, --verbose \t xsct will display debug information\n"
+        "\t-h, --help \t xsct will display this usage information\n", pname);
 }
 
 #define TEMPERATURE_NORM    6500
@@ -58,7 +60,7 @@ static double DoubleTrim(double x, double a, double b)
     return buff[ (int)(x > a) + (int)(x > b) ];
 }
 
-static int get_sct_for_screen(Display *dpy, int screen)
+static int get_sct_for_screen(Display *dpy, int screen, int fdebug)
 {
     Window root = RootWindow(dpy, screen);
     XRRScreenResources *res = XRRGetScreenResourcesCurrent(dpy, root);
@@ -90,6 +92,7 @@ static int get_sct_for_screen(Display *dpy, int screen)
         gammar /= gammam;
         gammag /= gammam;
         gammab /= gammam;
+        if (fdebug > 0) fprintf(stderr, "DEBUG: Gamma: %f, %f, %f\n", gammar, gammag, gammab);
         gammad = gammab - gammar;
         if (gammad < 0.0)
         {
@@ -126,7 +129,7 @@ static int get_sct_for_screen(Display *dpy, int screen)
     return temp;
 }
 
-static void sct_for_screen(Display *dpy, int screen, int temp)
+static void sct_for_screen(Display *dpy, int screen, int temp, int fdebug)
 {
     double t = 0.0, g = 0.0, gammar, gammag, gammab;
     int n, c;
@@ -152,6 +155,7 @@ static void sct_for_screen(Display *dpy, int screen, int temp)
         gammag = DoubleTrim(GAMMA_K0GB + GAMMA_K1GB * g, 0.0, 1.0);
         gammab = 1.0;
     }
+    if (fdebug > 0) fprintf(stderr, "DEBUG: Gamma: %f, %f, %f\n", gammar, gammag, gammab);
 
     n = res->ncrtc;
     for (c = 0; c < n; c++)
@@ -181,7 +185,8 @@ static void sct_for_screen(Display *dpy, int screen, int temp)
 
 int main(int argc, char **argv)
 {
-    int screen, screens, temp;
+    int i, screen, screens, temp;
+    int fdebug = 0, fhelp = 0;
     Display *dpy = XOpenDisplay(NULL);
     if (!dpy) {
         perror("XOpenDisplay(NULL) failed");
@@ -190,25 +195,30 @@ int main(int argc, char **argv)
     }
     screens = XScreenCount(dpy);
 
-    temp = TEMPERATURE_NORM;
-    if (argc > 1)
+    temp = -1;
+    for (i = 1; i < argc; i++)
     {
-        if (!strcmp(argv[1],"-h") || !strcmp(argv[1],"--help"))
+        if ((strcmp(argv[i],"-v") == 0) || (strcmp(argv[i],"--verbose") == 0)) fdebug = 1;
+        else if ((strcmp(argv[i],"-h") == 0) || (strcmp(argv[i],"--help") == 0)) fhelp = 1;
+        else temp = atoi(argv[i]);
+    }
+    if (fhelp >  0)
+    {
+        usage(argv[0]);
+    } else {
+        if (temp < 0)
         {
-            usage();
+            for (screen = 0; screen < screens; screen++)
+            {
+                temp = get_sct_for_screen(dpy, screen, fdebug);
+                printf("Screen %d: temperature ~ %d\n", screen, temp);
+            }
         } else {
-            temp = atoi(argv[1]);
-            if (temp <= 0)
+            if (temp == 0)
                 temp = TEMPERATURE_NORM;
 
             for (screen = 0; screen < screens; screen++)
-                sct_for_screen(dpy, screen, temp);
-        }
-    } else {
-        for (screen = 0; screen < screens; screen++)
-        {
-            temp = get_sct_for_screen(dpy, screen);
-            printf("Screen %d: temperature ~ %d\n", screen, temp);
+                sct_for_screen(dpy, screen, temp, fdebug);
         }
     }
 
