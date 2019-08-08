@@ -16,9 +16,9 @@
  * - return EXIT_SUCCESS
  *
  * Public domain, do as you wish.
- * 
- * gcc -Wall -std=c99 -O2 -I /usr/X11R6/include sct.c -o xsct -L /usr/X11R6/lib -lX11 -lXrandr -lm -s
- * 
+ *
+ * gcc -Wall -Wextra -Werror -pedantic -std=c99 -O2 -I /usr/X11R6/include sct.c -o xsct -L /usr/X11R6/lib -lX11 -lXrandr -lm -s
+ *
  */
 
 #include <X11/Xatom.h>
@@ -140,14 +140,13 @@ static void sct_for_screen(Display *dpy, int screen, int temp)
         } else {
             g = log(t - TEMPERATURE_ZERO);
             gammag = DoubleTrim(GAMMA_K0GR + GAMMA_K1GR * g, 0.0, 1.0);
-            gammab = DoubleTrim(GAMMA_K0BR + GAMMA_K1BR * g, 0.0, 1.0);         
+            gammab = DoubleTrim(GAMMA_K0BR + GAMMA_K1BR * g, 0.0, 1.0);
         }
     } else {
         g = log(t - (TEMPERATURE_NORM - TEMPERATURE_ZERO));
         gammar = DoubleTrim(GAMMA_K0RB + GAMMA_K1RB * g, 0.0, 1.0);
         gammag = DoubleTrim(GAMMA_K0GB + GAMMA_K1GB * g, 0.0, 1.0);
         gammab = 1.0;
-        
     }
 
     int n = res->ncrtc;

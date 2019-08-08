@@ -1,7 +1,7 @@
 PROG = xsct
 CC = gcc
-CFLAGS = -Wall -std=c99 -O2 -I /usr/X11R6/include
-LDFLAGS = -L /usr/X11R6/lib -lX11 -lXrandr -lm
+CFLAGS = -Wall -Wextra -Werror -pedantic -std=c99 -O2 -I /usr/X11R6/include
+LDFLAGS = -L /usr/X11R6/lib -lX11 -lXrandr -lm -s
 SRCS = sct.c
 PREFIX = /usr
 BIN = $(PREFIX)/bin
