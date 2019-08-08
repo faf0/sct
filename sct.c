@@ -126,6 +126,7 @@ static int get_sct_for_screen(Display *dpy, int screen)
 static void sct_for_screen(Display *dpy, int screen, int temp)
 {
     double t = 0.0, g = 0.0, gammar, gammag, gammab;
+    int n, c, crtcxid, size, i;
     Window root = RootWindow(dpy, screen);
     XRRScreenResources *res = XRRGetScreenResourcesCurrent(dpy, root);
 
@@ -149,15 +150,16 @@ static void sct_for_screen(Display *dpy, int screen, int temp)
         gammab = 1.0;
     }
 
-    int n = res->ncrtc;
-    for (int c = 0; c < n; c++)
+    n = res->ncrtc;
+    for (c = 0; c < n; c++)
     {
-        int crtcxid = res->crtcs[c];
-        int size = XRRGetCrtcGammaSize(dpy, crtcxid);
+        XRRCrtcGamma *crtc_gamma;
+        crtcxid = res->crtcs[c];
+        size = XRRGetCrtcGammaSize(dpy, crtcxid);
 
-        XRRCrtcGamma *crtc_gamma = XRRAllocGamma(size);
+        crtc_gamma = XRRAllocGamma(size);
 
-        for (int i = 0; i < size; i++)
+        for (i = 0; i < size; i++)
         {
             g = GAMMA_MULT * (double)i / (double)size;
             crtc_gamma->red[i] = g * gammar;
@@ -174,15 +176,16 @@ static void sct_for_screen(Display *dpy, int screen, int temp)
 
 int main(int argc, char **argv)
 {
+    int screen, screens, temp;
     Display *dpy = XOpenDisplay(NULL);
     if (!dpy) {
         perror("XOpenDisplay(NULL) failed");
         fprintf(stderr, "Make sure DISPLAY is set correctly.\n");
         return EXIT_FAILURE;
     }
-    int screens = XScreenCount(dpy);
+    screens = XScreenCount(dpy);
 
-    int temp = TEMPERATURE_NORM;
+    temp = TEMPERATURE_NORM;
     if (argc > 1)
     {
         if (!strcmp(argv[1],"-h") || !strcmp(argv[1],"--help"))
@@ -193,11 +196,11 @@ int main(int argc, char **argv)
             if (temp <= 0)
                 temp = TEMPERATURE_NORM;
 
-            for (int screen = 0; screen < screens; screen++)
+            for (screen = 0; screen < screens; screen++)
                 sct_for_screen(dpy, screen, temp);
         }
     } else {
-        for (int screen = 0; screen < screens; screen++)
+        for (screen = 0; screen < screens; screen++)
         {
             temp = get_sct_for_screen(dpy, screen);
             printf("Screen %d: temperature ~ %d\n", screen, temp);
