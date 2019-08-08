@@ -55,7 +55,7 @@ static void usage()
 static double DoubleTrim(double x, double a, double b)
 {
     double buff[3] = {a, x, b};
-    return buff[ (x > a) + (x > b) ];
+    return buff[ (int)(x > a) + (int)(x > b) ];
 }
 
 static int get_sct_for_screen(Display *dpy, int screen)
@@ -70,9 +70,12 @@ static int get_sct_for_screen(Display *dpy, int screen)
     n = res->ncrtc;
     for (c = 0; c < n; c++)
     {
-        int crtcxid = res->crtcs[c];
-        XRRCrtcGamma *crtc_gamma = XRRGetCrtcGamma(dpy, crtcxid);
-        int size = crtc_gamma->size;
+        RRCrtc crtcxid;
+        int size;
+        XRRCrtcGamma *crtc_gamma;
+        crtcxid = res->crtcs[c];
+        crtc_gamma = XRRGetCrtcGamma(dpy, crtcxid);
+        size = crtc_gamma->size;
         gammar += (crtc_gamma->red[size - 1]);
         gammag += (crtc_gamma->green[size - 1]);
         gammab += (crtc_gamma->blue[size - 1]);
@@ -90,24 +93,24 @@ static int get_sct_for_screen(Display *dpy, int screen)
         gammad = gammab - gammar;
         if (gammad < 0.0)
         {
-            if (gammab == 0.0)
+            if (gammab > 0.0)
             {
-                if (gammag == 0.0)
-                {
-                    t = TEMPERATURE_ZERO;
-                } else {
-                    t = gammag;
-                    t -= GAMMA_K0GR;
-                    t /= GAMMA_K1GR;
-                    t = exp(t);
-                    t += TEMPERATURE_ZERO;
-                }
-            } else {
                 t = gammag + gammad + 1.0;
                 t -= (GAMMA_K0GR + GAMMA_K0BR);
                 t /= (GAMMA_K1GR + GAMMA_K1BR);
                 t = exp(t);
                 t += TEMPERATURE_ZERO;
+            } else {
+                if (gammag > 0.0)
+                {
+                    t = gammag;
+                    t -= GAMMA_K0GR;
+                    t /= GAMMA_K1GR;
+                    t = exp(t);
+                    t += TEMPERATURE_ZERO;
+                } else {
+                    t = TEMPERATURE_ZERO;
+                }
             }
         } else {
             t = gammag + 1.0 - gammad;
@@ -126,7 +129,7 @@ static int get_sct_for_screen(Display *dpy, int screen)
 static void sct_for_screen(Display *dpy, int screen, int temp)
 {
     double t = 0.0, g = 0.0, gammar, gammag, gammab;
-    int n, c, crtcxid, size, i;
+    int n, c;
     Window root = RootWindow(dpy, screen);
     XRRScreenResources *res = XRRGetScreenResourcesCurrent(dpy, root);
 
@@ -153,6 +156,8 @@ static void sct_for_screen(Display *dpy, int screen, int temp)
     n = res->ncrtc;
     for (c = 0; c < n; c++)
     {
+        int size, i;
+        RRCrtc crtcxid;
         XRRCrtcGamma *crtc_gamma;
         crtcxid = res->crtcs[c];
         size = XRRGetCrtcGammaSize(dpy, crtcxid);
@@ -162,9 +167,9 @@ static void sct_for_screen(Display *dpy, int screen, int temp)
         for (i = 0; i < size; i++)
         {
             g = GAMMA_MULT * (double)i / (double)size;
-            crtc_gamma->red[i] = g * gammar;
-            crtc_gamma->green[i] = g * gammag;
-            crtc_gamma->blue[i] = g * gammab;
+            crtc_gamma->red[i] = (unsigned short int)(g * gammar + 0.5);
+            crtc_gamma->green[i] = (unsigned short int)(g * gammag + 0.5);
+            crtc_gamma->blue[i] = (unsigned short int)(g * gammab + 0.5);
         }
 
         XRRSetCrtcGamma(dpy, crtcxid, crtc_gamma);
