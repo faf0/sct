@@ -34,12 +34,12 @@
 static void usage(char * pname)
 {
     printf("Xsct (1.5)\n"
-        "Usage: %s [options] [temperature]\n"
-        "\tIf the argument is 0, xsct resets the display to the default temperature (6500K)\n"
-        "\tIf no arguments are passed, xsct estimates the current display temperature\n"
-        "Options:\n"
-        "\t-v, --verbose \t xsct will display debugging information\n"
-        "\t-h, --help \t xsct will display this usage information\n", pname);
+           "Usage: %s [options] [temperature]\n"
+           "\tIf the argument is 0, xsct resets the display to the default temperature (6500K)\n"
+           "\tIf no arguments are passed, xsct estimates the current display temperature\n"
+           "Options:\n"
+           "\t-v, --verbose \t xsct will display debugging information\n"
+           "\t-h, --help \t xsct will display this usage information\n", pname);
 }
 
 #define TEMPERATURE_NORM    6500
@@ -49,18 +49,18 @@ static void usage(char * pname)
 // https://github.com/jonls/redshift/blob/04760afe31bff5b26cf18fe51606e7bdeac15504/src/colorramp.c#L30-L273
 // without limits:
 // GAMMA = K0 + K1 * ln(T - T0)
- // Red range (T0 = TEMPERATURE_ZERO)
-  // Green color
+// Red range (T0 = TEMPERATURE_ZERO)
+// Green color
 #define GAMMA_K0GR          -1.47751309139817
 #define GAMMA_K1GR          0.28590164772055
-  // Blue color
+// Blue color
 #define GAMMA_K0BR          -4.38321650114872
 #define GAMMA_K1BR          0.6212158769447
- // Blue range  (T0 = TEMPERATURE_NORM - TEMPERATURE_ZERO)
-  // Red color
+// Blue range  (T0 = TEMPERATURE_NORM - TEMPERATURE_ZERO)
+// Red color
 #define GAMMA_K0RB          1.75390204039018
 #define GAMMA_K1RB          -0.1150805671482
-  // Green color
+// Green color
 #define GAMMA_K0GB          1.49221604915144
 #define GAMMA_K1GB          -0.07513509588921
 
@@ -108,29 +108,16 @@ static int get_sct_for_screen(Display *dpy, int screen, int fdebug)
         {
             if (gammab > 0.0)
             {
-                t = gammag + gammad + 1.0;
-                t -= (GAMMA_K0GR + GAMMA_K0BR);
-                t /= (GAMMA_K1GR + GAMMA_K1BR);
-                t = exp(t);
-                t += TEMPERATURE_ZERO;
-            } else {
-                if (gammag > 0.0)
-                {
-                    t = gammag;
-                    t -= GAMMA_K0GR;
-                    t /= GAMMA_K1GR;
-                    t = exp(t);
-                    t += TEMPERATURE_ZERO;
-                } else {
-                    t = TEMPERATURE_ZERO;
-                }
+                t = exp((gammag + 1.0 + gammad - (GAMMA_K0GR + GAMMA_K0BR)) / (GAMMA_K1GR + GAMMA_K1BR)) + TEMPERATURE_ZERO;
             }
-        } else {
-            t = gammag + 1.0 - gammad;
-            t -= (GAMMA_K0GB + GAMMA_K0RB);
-            t /= (GAMMA_K1GB + GAMMA_K1RB);
-            t = exp(t);
-            t += (TEMPERATURE_NORM - TEMPERATURE_ZERO);
+            else
+            {
+                t = (gammag > 0.0) ? (exp((gammag - GAMMA_K0GR) / GAMMA_K1GR) + TEMPERATURE_ZERO) : TEMPERATURE_ZERO;
+            }
+        }
+        else
+        {
+            t = exp((gammag + 1.0 - gammad - (GAMMA_K0GB + GAMMA_K0RB)) / (GAMMA_K1GB + GAMMA_K1RB)) + (TEMPERATURE_NORM - TEMPERATURE_ZERO);
         }
     }
 
@@ -154,12 +141,16 @@ static void sct_for_screen(Display *dpy, int screen, int temp, int fdebug)
         {
             gammag = 0.0;
             gammab = 0.0;
-        } else {
+        }
+        else
+        {
             g = log(t - TEMPERATURE_ZERO);
             gammag = DoubleTrim(GAMMA_K0GR + GAMMA_K1GR * g, 0.0, 1.0);
             gammab = DoubleTrim(GAMMA_K0BR + GAMMA_K1BR * g, 0.0, 1.0);
         }
-    } else {
+    }
+    else
+    {
         g = log(t - (TEMPERATURE_NORM - TEMPERATURE_ZERO));
         gammar = DoubleTrim(GAMMA_K0RB + GAMMA_K1RB * g, 0.0, 1.0);
         gammag = DoubleTrim(GAMMA_K0GB + GAMMA_K1GB * g, 0.0, 1.0);
@@ -198,7 +189,8 @@ int main(int argc, char **argv)
     int i, screen, screens, temp;
     int fdebug = 0, fhelp = 0;
     Display *dpy = XOpenDisplay(NULL);
-    if (!dpy) {
+    if (!dpy)
+    {
         perror("XOpenDisplay(NULL) failed");
         fprintf(stderr, "Make sure DISPLAY is set correctly.\n");
         return EXIT_FAILURE;
@@ -215,7 +207,9 @@ int main(int argc, char **argv)
     if (fhelp >  0)
     {
         usage(argv[0]);
-    } else {
+    }
+    else
+    {
         if (temp < 0)
         {
             for (screen = 0; screen < screens; screen++)
@@ -223,9 +217,10 @@ int main(int argc, char **argv)
                 temp = get_sct_for_screen(dpy, screen, fdebug);
                 printf("Screen %d: temperature ~ %d\n", screen, temp);
             }
-        } else {
-            if (temp == 0)
-                temp = TEMPERATURE_NORM;
+        }
+        else
+        {
+            temp = (temp == 0) ? TEMPERATURE_NORM : temp;
 
             for (screen = 0; screen < screens; screen++)
                 sct_for_screen(dpy, screen, temp, fdebug);
