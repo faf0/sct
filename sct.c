@@ -92,7 +92,7 @@ static int get_sct_for_screen(Display *dpy, int screen, int fdebug)
         gammag += (crtc_gamma->green[size - 1]);
         gammab += (crtc_gamma->blue[size - 1]);
 
-        XFree(crtc_gamma);
+        XRRFreeGamma(crtc_gamma);
     }
     XFree(res);
     gammam = (gammar > gammag) ? gammar : gammag;
@@ -187,7 +187,7 @@ static void sct_for_screen(Display *dpy, int screen, int temp, int fdebug)
         }
 
         XRRSetCrtcGamma(dpy, crtcxid, crtc_gamma);
-        XFree(crtc_gamma);
+        XRRFreeGamma(crtc_gamma);
     }
 
     XFree(res);
