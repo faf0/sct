@@ -1,9 +1,6 @@
 /*
  * xsct - X11 set color temperature
  *
- * Compile the code using the following command:
- * cc -std=c99 -O2 -I /usr/X11R6/include sct.c -o xsct -L /usr/X11R6/lib -lX11 -lXrandr
- *
  * Original code published by Ted Unangst:
  * http://www.tedunangst.com/flak/post/sct-set-color-temperature
  *
@@ -17,7 +14,8 @@
  *
  * Public domain, do as you wish.
  *
- * gcc -Wall -Wextra -Werror -pedantic -std=c99 -O2 -I /usr/X11R6/include sct.c -o xsct -L /usr/X11R6/lib -lX11 -lXrandr -lm -s
+ * Compile the code using the following command:
+ * gcc -Wall -Wextra -Werror -pedantic -std=c99 -O2 -I /usr/X11R6/include xsct.c -o xsct -L /usr/X11R6/lib -lX11 -lXrandr -lm -s
  *
  */
 
@@ -88,9 +86,9 @@ static int get_sct_for_screen(Display *dpy, int screen, int fdebug)
         crtcxid = res->crtcs[c];
         crtc_gamma = XRRGetCrtcGamma(dpy, crtcxid);
         size = crtc_gamma->size;
-        gammar += (crtc_gamma->red[size - 1]);
-        gammag += (crtc_gamma->green[size - 1]);
-        gammab += (crtc_gamma->blue[size - 1]);
+        gammar += crtc_gamma->red[size - 1];
+        gammag += crtc_gamma->green[size - 1];
+        gammab += crtc_gamma->blue[size - 1];
 
         XRRFreeGamma(crtc_gamma);
     }
