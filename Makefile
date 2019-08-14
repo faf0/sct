@@ -1,8 +1,8 @@
 PROG = xsct
 CC = gcc
-CFLAGS = -Wall -std=c99 -O2 -I /usr/X11R6/include
-LDFLAGS = -L /usr/X11R6/lib -lX11 -lXrandr
-SRCS = sct.c
+CFLAGS = -Wall -Wextra -Werror -pedantic -std=c99 -O2 -I /usr/X11R6/include
+LDFLAGS = -L /usr/X11R6/lib -lX11 -lXrandr -lm -s
+SRCS = xsct.c
 PREFIX = /usr
 BIN = $(PREFIX)/bin
 MAN = $(PREFIX)/share/man/man1

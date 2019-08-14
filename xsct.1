@@ -1,31 +1,32 @@
-.TH xsct 1 "Aug 2019" "1.4" "User Manual"
+.TH xsct 1 "Aug 2019" "1.5" "User Manual"
 .SH NAME
 xsct \- X11 set screen color temperature
 .SH SYNOPSIS
 .B xsct 
-[temperature]
-
-or
-
-.B xsct
-[-h || --help]
-
+[options] 
+.I [temperature]
 
 .SH DESCRIPTION
 .B xsct
-sets the screen's color temperature in a range from 1000 to 10000
+sets the screen's color temperature.
 
 .SH OPTIONS
-.IP temperature
-If passed a value in the correct range (see above)
-.B xsct
-will set the current screen temperature to this value
-.IP 0
-If the value is 0, xsct sets the color temperature to the default of 6500
-.IP -h,--help
+.TP
+.B -h, --help
 Display usage information and exit
-.IP none
+.TP
+.B -v, --verbose
+Display debugging information
+.TP
+.I [temperature]
+Black body temperature
+.br
+If the value is 0, xsct sets the color temperature to the default of 6500
+.br
 If no arguments are passed, xsct estimates the current display temperature
 
 .SH AUTHOR
 xsct was written by Ted Unangst <tedu@openbsd.org>
+
+.SH SEE ALSO
+redshift(1), xtemp(1)
