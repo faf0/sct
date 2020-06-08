@@ -31,9 +31,10 @@
 
 static void usage(char * pname)
 {
-    printf("Xsct (1.5)\n"
+    printf("Xsct (1.6)\n"
            "Usage: %s [options] [temperature]\n"
            "\tIf the argument is 0, xsct resets the display to the default temperature (6500K)\n"
+           "\tIf the argument lesser than 1000, xsct will increase (or decrease) current display temperature by given argument\n"
            "\tIf no arguments are passed, xsct estimates the current display temperature\n"
            "Options:\n"
            "\t-v, --verbose \t xsct will display debugging information\n"
@@ -208,7 +209,7 @@ int main(int argc, char **argv)
     }
     else
     {
-        if (temp < 0)
+        if (temp == -1)
         {
             for (screen = 0; screen < screens; screen++)
             {
@@ -218,10 +219,11 @@ int main(int argc, char **argv)
         }
         else
         {
-            temp = (temp == 0) ? TEMPERATURE_NORM : temp;
-
-            for (screen = 0; screen < screens; screen++)
+            for (screen = 0; screen < screens; screen++) 
+            {
+                temp = (temp > 1000) ? temp : (temp + (temp != 0)*get_sct_for_screen(dpy, screen, fdebug)); 
                 sct_for_screen(dpy, screen, temp, fdebug);
+            }
         }
     }
 
