@@ -219,6 +219,7 @@ int main(int argc, char **argv)
         }
         else
         {
+            temp = (temp == 0) ? TEMPERATURE_NORM : temp; 
             for (screen = 0; screen < screens; screen++) 
             {
                 temp = (temp > 1000) ? temp : (temp + (temp != 0)*get_sct_for_screen(dpy, screen, fdebug)); 
