@@ -31,12 +31,13 @@
 
 static void usage(char * pname)
 {
-    printf("Xsct (1.5)\n"
+    printf("Xsct (1.6)\n"
            "Usage: %s [options] [temperature]\n"
            "\tIf the argument is 0, xsct resets the display to the default temperature (6500K)\n"
            "\tIf no arguments are passed, xsct estimates the current display temperature\n"
            "Options:\n"
            "\t-v, --verbose \t xsct will display debugging information\n"
+           "\t-d, --delta \t xsct work in delta-mode\n"
            "\t-h, --help \t xsct will display this usage information\n", pname);
 }
 
@@ -184,8 +185,8 @@ static void sct_for_screen(Display *dpy, int screen, int temp, int fdebug)
 
 int main(int argc, char **argv)
 {
-    int i, screen, screens, temp;
-    int fdebug = 0, fhelp = 0;
+    int i, screen, screens, temp, tempd;
+    int fdebug = 0, fdelta = 0, fhelp = 0;
     Display *dpy = XOpenDisplay(NULL);
     if (!dpy)
     {
@@ -199,6 +200,7 @@ int main(int argc, char **argv)
     for (i = 1; i < argc; i++)
     {
         if ((strcmp(argv[i],"-v") == 0) || (strcmp(argv[i],"--verbose") == 0)) fdebug = 1;
+        else if ((strcmp(argv[i],"-d") == 0) || (strcmp(argv[i],"--delta") == 0)) fdelta = 1;
         else if ((strcmp(argv[i],"-h") == 0) || (strcmp(argv[i],"--help") == 0)) fhelp = 1;
         else temp = atoi(argv[i]);
     }
@@ -208,7 +210,7 @@ int main(int argc, char **argv)
     }
     else
     {
-        if (temp < 0)
+        if ((temp < 0) && (fdelta == 0))
         {
             for (screen = 0; screen < screens; screen++)
             {
@@ -218,10 +220,32 @@ int main(int argc, char **argv)
         }
         else
         {
-            temp = (temp == 0) ? TEMPERATURE_NORM : temp;
-
-            for (screen = 0; screen < screens; screen++)
-                sct_for_screen(dpy, screen, temp, fdebug);
+            temp = ((temp == 0) && (fdelta == 0)) ? TEMPERATURE_NORM : temp;
+            if (fdelta == 0)
+            {
+                if (temp < TEMPERATURE_ZERO)
+                {
+                    fprintf(stderr, "WARNING! Temperatures below %d cannot be displayed.\n", TEMPERATURE_ZERO);
+                    temp = TEMPERATURE_ZERO;
+                }
+                for (screen = 0; screen < screens; screen++)
+                {
+                   sct_for_screen(dpy, screen, temp, fdebug);
+                }
+            }
+            else
+            {
+                for (screen = 0; screen < screens; screen++)
+                {
+                    tempd = temp + get_sct_for_screen(dpy, screen, fdebug);
+                    if (tempd < TEMPERATURE_ZERO)
+                    {
+                        fprintf(stderr, "WARNING! Temperatures below %d cannot be displayed.\n", TEMPERATURE_ZERO);
+                        tempd = TEMPERATURE_ZERO;
+                    }
+                    sct_for_screen(dpy, screen, tempd, fdebug);
+                }
+            }
         }
     }
 
