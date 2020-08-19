@@ -39,6 +39,11 @@ Test xsct using the following command:
 ./xsct 3700 && ./xsct
 ~~~
 
+# Resources
+
+The following website provides a table for the conversion between black-body temperatures and color pixel values:
+http://www.vendian.org/mncharity/dir3/blackbody/
+
 ---
 
 https://github.com/faf0/sct/
