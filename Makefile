@@ -12,10 +12,10 @@ $(PROG): $(SRCS)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 install: $(PROG) $(PROG).1
-	$(INSTALL) -d $(BIN)
-	$(INSTALL) -m 0755 $(PROG) $(BIN)
-	$(INSTALL) -d $(MAN)
-	$(INSTALL) -m 0644 $(PROG).1 $(MAN)
+	$(INSTALL) -d $(DESTDIR)$(BIN)
+	$(INSTALL) -m 0755 $(PROG) $(DESTDIR)$(BIN)
+	$(INSTALL) -d $(DESTDIR)$(MAN)
+	$(INSTALL) -m 0644 $(PROG).1 $(DESTDIR)$(MAN)
 
 uninstall:
 	rm -f $(BIN)/$(PROG)
