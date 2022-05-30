@@ -1,5 +1,9 @@
 PROJECT: https://github.com/faf0/sct
 
+1.7: zikzik on May 30 2022
+* Options to specify the screen index and CRTC index to change the color
+temperature of a specific screen and CTRC combination only
+
 1.6.1: sunweaver and faf0 on 24 March 2021
 * Add `$(DESTDIR)` as prefix of installation paths
 
