@@ -32,7 +32,7 @@
 static void usage(char * pname)
 {
     printf("Xsct (1.6)\n"
-           "Usage: %s [options] [temperature]\n"
+           "Usage: %s [options] [temperature] [screen_index] [crtc_index]\n"
            "\tIf the argument is 0, xsct resets the display to the default temperature (6500K)\n"
            "\tIf no arguments are passed, xsct estimates the current display temperature\n"
            "Options:\n"
@@ -69,7 +69,7 @@ static double DoubleTrim(double x, double a, double b)
     return buff[ (int)(x > a) + (int)(x > b) ];
 }
 
-static int get_sct_for_screen(Display *dpy, int screen, int fdebug)
+static int get_sct_for_screen(Display *dpy, int screen, int icrtc, int fdebug)
 {
     Window root = RootWindow(dpy, screen);
     XRRScreenResources *res = XRRGetScreenResourcesCurrent(dpy, root);
@@ -79,7 +79,8 @@ static int get_sct_for_screen(Display *dpy, int screen, int fdebug)
     double gammar = 0.0, gammag = 0.0, gammab = 0.0, gammam = 1.0, gammad = 0.0;
 
     n = res->ncrtc;
-    for (c = 0; c < n; c++)
+
+    for (c = (icrtc >= 0 && icrtc < n) ? icrtc : 0; c < ((icrtc >= 0 && icrtc < n) ? icrtc + 1 : n); c++)
     {
         RRCrtc crtcxid;
         int size;
@@ -125,7 +126,7 @@ static int get_sct_for_screen(Display *dpy, int screen, int fdebug)
     return temp;
 }
 
-static void sct_for_screen(Display *dpy, int screen, int temp, int fdebug)
+static void sct_for_screen(Display *dpy, int screen, int icrtc, int temp, int fdebug)
 {
     double t = 0.0, g = 0.0, gammar, gammag, gammab;
     int n, c;
@@ -156,9 +157,8 @@ static void sct_for_screen(Display *dpy, int screen, int temp, int fdebug)
         gammab = 1.0;
     }
     if (fdebug > 0) fprintf(stderr, "DEBUG: Gamma: %f, %f, %f\n", gammar, gammag, gammab);
-
     n = res->ncrtc;
-    for (c = 0; c < n; c++)
+    for (c = (icrtc >= 0 && icrtc < n) ? icrtc : 0; c < ((icrtc >= 0 && icrtc < n) ? icrtc + 1 : n); c++)
     {
         int size, i;
         RRCrtc crtcxid;
@@ -186,6 +186,7 @@ static void sct_for_screen(Display *dpy, int screen, int temp, int fdebug)
 int main(int argc, char **argv)
 {
     int i, screen, screens, temp;
+    int screen_specified, screen_first, screen_last, crtc_specified;
     int fdebug = 0, fdelta = 0, fhelp = 0;
     Display *dpy = XOpenDisplay(NULL);
 
@@ -196,27 +197,40 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
     screens = XScreenCount(dpy);
-
+    screen_first = 0;
+    screen_last = screens - 1;
     temp = -1;
+    screen_specified = -1;
+    crtc_specified = -1;
     for (i = 1; i < argc; i++)
     {
         if ((strcmp(argv[i],"-v") == 0) || (strcmp(argv[i],"--verbose") == 0)) fdebug = 1;
         else if ((strcmp(argv[i],"-d") == 0) || (strcmp(argv[i],"--delta") == 0)) fdelta = 1;
         else if ((strcmp(argv[i],"-h") == 0) || (strcmp(argv[i],"--help") == 0)) fhelp = 1;
-        else temp = atoi(argv[i]);
+        else if (temp == -1) temp = atoi(argv[i]);
+        else if (screen_specified == -1) screen_specified = atoi(argv[i]);
+        else crtc_specified = atoi(argv[i]);
     }
+
     if (fhelp >  0)
     {
         usage(argv[0]);
     }
+    else if (screen_specified >= screens) {
+        fprintf(stderr, "ERROR! Invalid screen index: %d\n", screen_specified);
+    }
     else
     {
+        if (screen_specified >= 0) {
+            screen_first = screen_specified;
+            screen_last = screen_specified;
+        }
         if ((temp < 0) && (fdelta == 0))
         {
             // No arguments, so print estimated temperature for each screen
             for (screen = 0; screen < screens; screen++)
             {
-                temp = get_sct_for_screen(dpy, screen, fdebug);
+                temp = get_sct_for_screen(dpy, screen, crtc_specified, fdebug);
                 printf("Screen %d: temperature ~ %d\n", screen, temp);
             }
         }
@@ -234,23 +248,23 @@ int main(int argc, char **argv)
                     fprintf(stderr, "WARNING! Temperatures below %d cannot be displayed.\n", TEMPERATURE_ZERO);
                     temp = TEMPERATURE_ZERO;
                 }
-                for (screen = 0; screen < screens; screen++)
+                for (screen = screen_first; screen <= screen_last; screen++)
                 {
-                   sct_for_screen(dpy, screen, temp, fdebug);
+                   sct_for_screen(dpy, screen, crtc_specified, temp, fdebug);
                 }
             }
             else
             {
                 // Delta mode: Shift temperature of each screen by given value
-                for (screen = 0; screen < screens; screen++)
+                for (screen = screen_first; screen <= screen_last; screen++)
                 {
-                    int tempd = temp + get_sct_for_screen(dpy, screen, fdebug);
+                    int tempd = temp + get_sct_for_screen(dpy, screen, crtc_specified, fdebug);
                     if (tempd < TEMPERATURE_ZERO)
                     {
                         fprintf(stderr, "WARNING! Temperatures below %d cannot be displayed.\n", TEMPERATURE_ZERO);
                         tempd = TEMPERATURE_ZERO;
                     }
-                    sct_for_screen(dpy, screen, tempd, fdebug);
+                    sct_for_screen(dpy, screen, crtc_specified, tempd, fdebug);
                 }
             }
         }
