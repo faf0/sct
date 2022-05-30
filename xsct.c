@@ -79,8 +79,8 @@ static int get_sct_for_screen(Display *dpy, int screen, int icrtc, int fdebug)
     double gammar = 0.0, gammag = 0.0, gammab = 0.0, gammam = 1.0, gammad = 0.0;
 
     n = res->ncrtc;
-
-    for (c = (icrtc >= 0 && icrtc < n) ? icrtc : 0; c < ((icrtc >= 0 && icrtc < n) ? icrtc + 1 : n); c++)
+    int icrtc_is_specified = icrtc >= 0 && icrtc < n;
+    for (c = icrtc_is_specified ? icrtc : 0; c < (icrtc_is_specified ? icrtc + 1 : n); c++)
     {
         RRCrtc crtcxid;
         int size;
@@ -158,7 +158,8 @@ static void sct_for_screen(Display *dpy, int screen, int icrtc, int temp, int fd
     }
     if (fdebug > 0) fprintf(stderr, "DEBUG: Gamma: %f, %f, %f\n", gammar, gammag, gammab);
     n = res->ncrtc;
-    for (c = (icrtc >= 0 && icrtc < n) ? icrtc : 0; c < ((icrtc >= 0 && icrtc < n) ? icrtc + 1 : n); c++)
+    int icrtc_is_specified = icrtc >= 0 && icrtc < n;
+    for (c = icrtc_is_specified ? icrtc : 0; c < (icrtc_is_specified ? icrtc + 1 : n); c++)
     {
         int size, i;
         RRCrtc crtcxid;
