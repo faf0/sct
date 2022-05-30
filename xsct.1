@@ -5,6 +5,8 @@ xsct \- X11 set screen color temperature
 .B xsct 
 [options] 
 .I [temperature]
+.I [screen_index]
+.I [crtc_index]
 
 .SH DESCRIPTION
 .B xsct
@@ -27,6 +29,12 @@ Black body temperature
 If the value is 0, xsct sets the color temperature to the default of 6500
 .br
 If no arguments are passed, xsct estimates the current display temperature
+.TP
+.I [screen_index]
+Screen to change temperature of.
+.TP
+.I [crtc_index]
+CRTC (output) of specified screen to change temperature of.
 
 .SH AUTHOR
 xsct was written by Ted Unangst <tedu@openbsd.org>
