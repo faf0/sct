@@ -243,7 +243,7 @@ int main(int argc, char **argv)
         if ((temp < 0) && (fdelta == 0))
         {
             // No arguments, so print estimated temperature for each screen
-            for (screen = 0; screen < screens; screen++)
+            for (screen = screen_first; screen <= screen_last; screen++)
             {
                 temp = get_sct_for_screen(dpy, screen, crtc_specified, fdebug);
                 printf("Screen %d: temperature ~ %d\n", screen, temp);
