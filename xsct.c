@@ -16,7 +16,7 @@
 
 static void usage(char * pname)
 {
-    printf("Xsct (1.7.1)\n"
+    printf("Xsct (1.8)\n"
            "Usage: %s [options] [temperature]\n"
            "\tIf the argument is 0, xsct resets the display to the default temperature (6500K)\n"
            "\tIf no arguments are passed, xsct estimates the current display temperature\n"
