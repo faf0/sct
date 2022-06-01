@@ -1,6 +1,9 @@
 PROJECT: https://github.com/faf0/sct
 
-1.7: zikzik on May 30 2022
+1.8: faf0 on 01 Jun 2022
+* Options --screen and --crtc added to select a specific screen and CRTC to use
+
+1.7: zikzik on 30 May 2022
 * Options to specify the screen index and CRTC index to change the color
 temperature of a specific screen and CTRC combination only
 

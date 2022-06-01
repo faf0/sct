@@ -16,14 +16,16 @@
 
 static void usage(char * pname)
 {
-    printf("Xsct (1.6)\n"
-           "Usage: %s [options] [temperature] [screen_index] [crtc_index]\n"
+    printf("Xsct (1.8)\n"
+           "Usage: %s [options] [temperature]\n"
            "\tIf the argument is 0, xsct resets the display to the default temperature (6500K)\n"
            "\tIf no arguments are passed, xsct estimates the current display temperature\n"
            "Options:\n"
+           "\t-h, --help \t xsct will display this usage information\n"
            "\t-v, --verbose \t xsct will display debugging information\n"
-           "\t-d, --delta \t xsct will shift temperature by given value\n"
-           "\t-h, --help \t xsct will display this usage information\n", pname);
+           "\t-d, --delta\t xsct will shift temperature by the temperature value\n"
+           "\t-s, --screen N\t xsct will only select screen specified by given zero-based index\n"
+           "\t-c, --crtc N\t xsct will only select CRTC specified by given zero-based index\n", pname);
 }
 
 #define TEMPERATURE_NORM    6500
@@ -64,8 +66,8 @@ static int get_sct_for_screen(Display *dpy, int screen, int icrtc, int fdebug)
     double gammar = 0.0, gammag = 0.0, gammab = 0.0, gammam = 1.0, gammad = 0.0;
 
     n = res->ncrtc;
-    int icrtc_is_specified = icrtc >= 0 && icrtc < n;
-    for (c = icrtc_is_specified ? icrtc : 0; c < (icrtc_is_specified ? icrtc + 1 : n); c++)
+    int icrtc_specified = icrtc >= 0 && icrtc < n;
+    for (c = icrtc_specified ? icrtc : 0; c < (icrtc_specified ? icrtc + 1 : n); c++)
     {
         RRCrtc crtcxid;
         int size;
@@ -143,8 +145,8 @@ static void sct_for_screen(Display *dpy, int screen, int icrtc, int temp, int fd
     }
     if (fdebug > 0) fprintf(stderr, "DEBUG: Gamma: %f, %f, %f\n", gammar, gammag, gammab);
     n = res->ncrtc;
-    int icrtc_is_specified = icrtc >= 0 && icrtc < n;
-    for (c = icrtc_is_specified ? icrtc : 0; c < (icrtc_is_specified ? icrtc + 1 : n); c++)
+    int icrtc_specified = icrtc >= 0 && icrtc < n;
+    for (c = icrtc_specified ? icrtc : 0; c < (icrtc_specified ? icrtc + 1 : n); c++)
     {
         int size, i;
         RRCrtc crtcxid;
@@ -179,7 +181,7 @@ int main(int argc, char **argv)
     if (!dpy)
     {
         perror("XOpenDisplay(NULL) failed");
-        fprintf(stderr, "Make sure DISPLAY is set correctly.\n");
+        fprintf(stderr, "ERROR! Ensure DISPLAY is set correctly!\n");
         return EXIT_FAILURE;
     }
     screens = XScreenCount(dpy);
@@ -190,31 +192,58 @@ int main(int argc, char **argv)
     crtc_specified = -1;
     for (i = 1; i < argc; i++)
     {
-        if ((strcmp(argv[i],"-v") == 0) || (strcmp(argv[i],"--verbose") == 0)) fdebug = 1;
+        if ((strcmp(argv[i],"-h") == 0) || (strcmp(argv[i],"--help") == 0)) fhelp = 1;
+        else if ((strcmp(argv[i],"-v") == 0) || (strcmp(argv[i],"--verbose") == 0)) fdebug = 1;
         else if ((strcmp(argv[i],"-d") == 0) || (strcmp(argv[i],"--delta") == 0)) fdelta = 1;
-        else if ((strcmp(argv[i],"-h") == 0) || (strcmp(argv[i],"--help") == 0)) fhelp = 1;
+        else if ((strcmp(argv[i],"-s") == 0) || (strcmp(argv[i],"--screen") == 0))
+        {
+            i++;
+            if (i < argc)
+            {
+                screen_specified = atoi(argv[i]);
+            } else {
+                fprintf(stderr, "ERROR! Required value for screen not specified!\n");
+                fhelp = 1;
+            }
+        }
+        else if ((strcmp(argv[i],"-c") == 0) || (strcmp(argv[i],"--crtc") == 0))
+        {
+            i++;
+            if (i < argc)
+            {
+                crtc_specified = atoi(argv[i]);
+            } else {
+                fprintf(stderr, "ERROR! Required value for crtc not specified!\n");
+                fhelp = 1;
+            }
+        }
         else if (temp == -1) temp = atoi(argv[i]);
-        else if (screen_specified == -1) screen_specified = atoi(argv[i]);
-        else crtc_specified = atoi(argv[i]);
+        else
+        {
+            fprintf(stderr, "ERROR! Unknown parameter: %s\n!", argv[i]);
+            fhelp = 1;
+        }
     }
 
-    if (fhelp >  0)
+    if (fhelp > 0)
     {
         usage(argv[0]);
     }
-    else if (screen_specified >= screens) {
-        fprintf(stderr, "ERROR! Invalid screen index: %d\n", screen_specified);
+    else if (screen_specified >= screens)
+    {
+        fprintf(stderr, "ERROR! Invalid screen index: %d!\n", screen_specified);
     }
     else
     {
-        if (screen_specified >= 0) {
+        if (screen_specified >= 0)
+        {
             screen_first = screen_specified;
             screen_last = screen_specified;
         }
         if ((temp < 0) && (fdelta == 0))
         {
             // No arguments, so print estimated temperature for each screen
-            for (screen = 0; screen < screens; screen++)
+            for (screen = screen_first; screen <= screen_last; screen++)
             {
                 temp = get_sct_for_screen(dpy, screen, crtc_specified, fdebug);
                 printf("Screen %d: temperature ~ %d\n", screen, temp);
