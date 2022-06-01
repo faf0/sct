@@ -17,15 +17,15 @@
 static void usage(char * pname)
 {
     printf("Xsct (1.7.1)\n"
-           "Usage: %s [options] [temperature] [screen_index] [crtc_index]\n"
+           "Usage: %s [options] [temperature]\n"
            "\tIf the argument is 0, xsct resets the display to the default temperature (6500K)\n"
            "\tIf no arguments are passed, xsct estimates the current display temperature\n"
            "Options:\n"
-           "\t-v, --verbose \t xsct will display debugging information\n"
-           "\t-d, --delta \t xsct will shift temperature by given value\n"
            "\t-h, --help \t xsct will display this usage information\n"
-           "\t-s, --screen \t xsct will only select screen specified by given zero-based index\n"
-           "\t-c, --crtc \t xsct will only select CRTC specified by given zero-based index\n", pname);
+           "\t-v, --verbose \t xsct will display debugging information\n"
+           "\t-d, --delta D\t xsct will shift temperature by given value\n"
+           "\t-s, --screen N\t xsct will only select screen specified by given zero-based index\n"
+           "\t-c, --crtc N\t xsct will only select CRTC specified by given zero-based index\n", pname);
 }
 
 #define TEMPERATURE_NORM    6500
@@ -181,7 +181,7 @@ int main(int argc, char **argv)
     if (!dpy)
     {
         perror("XOpenDisplay(NULL) failed");
-        fprintf(stderr, "Make sure DISPLAY is set correctly.\n");
+        fprintf(stderr, "ERROR! Ensure DISPLAY is set correctly!\n");
         return EXIT_FAILURE;
     }
     screens = XScreenCount(dpy);
@@ -192,9 +192,9 @@ int main(int argc, char **argv)
     crtc_specified = -1;
     for (i = 1; i < argc; i++)
     {
-        if ((strcmp(argv[i],"-v") == 0) || (strcmp(argv[i],"--verbose") == 0)) fdebug = 1;
+        if ((strcmp(argv[i],"-h") == 0) || (strcmp(argv[i],"--help") == 0)) fhelp = 1;
+        else if ((strcmp(argv[i],"-v") == 0) || (strcmp(argv[i],"--verbose") == 0)) fdebug = 1;
         else if ((strcmp(argv[i],"-d") == 0) || (strcmp(argv[i],"--delta") == 0)) fdelta = 1;
-        else if ((strcmp(argv[i],"-h") == 0) || (strcmp(argv[i],"--help") == 0)) fhelp = 1;
         else if ((strcmp(argv[i],"-s") == 0) || (strcmp(argv[i],"--screen") == 0))
         {
             i++;
@@ -202,25 +202,25 @@ int main(int argc, char **argv)
             {
                 screen_specified = atoi(argv[i]);
             } else {
-                fprintf(stderr, "ERROR! Needed value for screen not specified!\n");
+                fprintf(stderr, "ERROR! Required value for screen not specified!\n");
                 fhelp = 1;
             }
         }
-        else if ((strcmp(argv[i],"-c") == 0) || (strcmp(argv[i],"--crts") == 0))
+        else if ((strcmp(argv[i],"-c") == 0) || (strcmp(argv[i],"--crtc") == 0))
         {
             i++;
             if (i < argc)
             {
                 crtc_specified = atoi(argv[i]);
             } else {
-                fprintf(stderr, "ERROR! Needed value for crtc not specified!\n");
+                fprintf(stderr, "ERROR! Required value for crtc not specified!\n");
                 fhelp = 1;
             }
         }
         else if (temp == -1) temp = atoi(argv[i]);
         else
         {
-            fprintf(stderr, "ERROR! Unknown parameter: %s!\n", argv[i]);
+            fprintf(stderr, "ERROR! Unknown parameter: %s\n!", argv[i]);
             fhelp = 1;
         }
     }
@@ -231,7 +231,7 @@ int main(int argc, char **argv)
     }
     else if (screen_specified >= screens)
     {
-        fprintf(stderr, "ERROR! Invalid screen index: %d\n", screen_specified);
+        fprintf(stderr, "ERROR! Invalid screen index: %d!\n", screen_specified);
     }
     else
     {

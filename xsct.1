@@ -1,12 +1,10 @@
-.TH xsct 1 "Aug 2020" "1.6" "User Manual"
+.TH xsct 1 "Jun 2022" "1.7.1" "User Manual"
 .SH NAME
 xsct \- X11 set screen color temperature
 .SH SYNOPSIS
 .B xsct 
 [options] 
 .I [temperature]
-.I [screen_index]
-.I [crtc_index]
 
 .SH DESCRIPTION
 .B xsct
@@ -14,19 +12,19 @@ sets the screen's color temperature.
 
 .SH OPTIONS
 .TP
-.B -d, --delta
-Shift temperature by given value
-.TP
 .B -h, --help
 Display usage information and exit
 .TP
 .B -v, --verbose
 Display debugging information
 .TP
-.B -s, --screen
+.B -d, --delta D
+Shift temperature by given value
+.TP
+.B -s, --screen N
 Zero-based index of screen to use.
 .TP
-.B -c, --crtc
+.B -c, --crtc N
 Zero-based index of CRTC to use.
 .TP
 .I [temperature]

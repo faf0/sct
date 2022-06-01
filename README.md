@@ -27,18 +27,18 @@ Execute xsct using the following command:
 ./xsct 3700
 ~~~
 
-The first parameter (`3700` above) denotes the color temperature.  
+The first parameter (`3700` above) represents the color temperature.  
 
 If `xsct` is called with parameter 0, the color temperature is set to `6500`.  
 
 If `xsct` is called without parameters, the current display temperature is estimated.
 
-The following parameters are available:
-- `-v`, `--verbose`: display debugging information
-- `-d <delta>`, `--delta <delta>`: shift temperature by given value
+The following options, which can be specified before the optional temperature parameter, are supported:
 - `-h`, `--help`: display the help page
-- `-s <screen>`, `--screen <screen>`: only select the screen specified by given zero-based index
-- `-c <crtc>`, `--crtc <crtc>`: only select the CRTC specified by given zero-based index
+- `-v`, `--verbose`: display debugging information
+- `-d <delta>`, `--delta <delta>` `D`: shift temperature by given value
+- `-s <screen>`, `--screen <screen>` `N`: use the screen specified by given zero-based index
+- `-c <crtc>`, `--crtc <crtc>` `N`: use the CRTC specified by given zero-based index
 
 Test xsct using the following command:
 ~~~sh
