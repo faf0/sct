@@ -23,7 +23,7 @@ static void usage(char * pname)
            "Options:\n"
            "\t-h, --help \t xsct will display this usage information\n"
            "\t-v, --verbose \t xsct will display debugging information\n"
-           "\t-d, --delta D\t xsct will shift temperature by given value\n"
+           "\t-d, --delta\t xsct will shift temperature by the temperature value\n"
            "\t-s, --screen N\t xsct will only select screen specified by given zero-based index\n"
            "\t-c, --crtc N\t xsct will only select CRTC specified by given zero-based index\n", pname);
 }

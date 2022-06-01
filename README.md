@@ -36,7 +36,7 @@ If `xsct` is called without parameters, the current display temperature is estim
 The following options, which can be specified before the optional temperature parameter, are supported:
 - `-h`, `--help`: display the help page
 - `-v`, `--verbose`: display debugging information
-- `-d <delta>`, `--delta <delta>` `D`: shift temperature by given value
+- `-d <delta>`, `--delta <delta>`: shift temperature by the temperature value
 - `-s <screen>`, `--screen <screen>` `N`: use the screen specified by given zero-based index
 - `-c <crtc>`, `--crtc <crtc>` `N`: use the CRTC specified by given zero-based index
 
