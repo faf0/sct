@@ -23,7 +23,9 @@ static void usage(char * pname)
            "Options:\n"
            "\t-v, --verbose \t xsct will display debugging information\n"
            "\t-d, --delta \t xsct will shift temperature by given value\n"
-           "\t-h, --help \t xsct will display this usage information\n", pname);
+           "\t-h, --help \t xsct will display this usage information\n"
+           "\t-s, --screen \t xsct will only select screen specified by given zero-based index\n"
+           "\t-c, --crtc \t xsct will only select CRTC specified by given zero-based index\n", pname);
 }
 
 #define TEMPERATURE_NORM    6500
@@ -200,7 +202,7 @@ int main(int argc, char **argv)
             {
                 screen_specified = atoi(argv[i]);
             } else {
-                fprintf(stderr, "ERROR! Needed parameter screen not specified!\n");
+                fprintf(stderr, "ERROR! Needed value for screen not specified!\n");
                 fhelp = 1;
             }
         }
@@ -211,7 +213,7 @@ int main(int argc, char **argv)
             {
                 crtc_specified = atoi(argv[i]);
             } else {
-                fprintf(stderr, "ERROR! Needed parameter crtc not specified!\n");
+                fprintf(stderr, "ERROR! Needed value for crtc not specified!\n");
                 fhelp = 1;
             }
         }

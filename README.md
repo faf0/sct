@@ -33,9 +33,12 @@ If `xsct` is called with parameter 0, the color temperature is set to `6500`.
 
 If `xsct` is called without parameters, the current display temperature is estimated.
 
-If `xsct` is called with a temperature parameter as well as a screen index
-followed by a CRTC index, the color temperature of the specified screen and
-CRTC combination is changed only.
+The following parameters are available:
+- `-v`, `--verbose`: display debugging information
+- `-d <delta>`, `--delta <delta>`: shift temperature by given value
+- `-h`, `--help`: display the help page
+- `-s <screen>`, `--screen <screen>`: only select the screen specified by given zero-based index
+- `-c <crtc>`, `--crtc <crtc>`: only select the CRTC specified by given zero-based index
 
 Test xsct using the following command:
 ~~~sh
