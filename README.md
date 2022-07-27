@@ -13,45 +13,37 @@ Original code was published by Ted Unangst in the public domain:
 https://www.tedunangst.com/flak/post/sct-set-color-temperature
 
 Minor modifications were made in order to get sct to:
-- compile on Ubuntu 14.04
+- compile on Ubuntu 14.04 and later releases
 - iterate over all screens of the default display and change the color
   temperature
 - free the Display structure
 - fix memleaks
 - clean up code
-- return EXIT_SUCCESS
+- return `EXIT_SUCCESS`
 
 # Installation
 
 ## Make-based
 
-On UNIX-based systems, a convenient method of building this software is using
-Make. Since the `Makefile` is simple and portable, both the BSD and
-[GNU make](https://www.gnu.org/software/make/) variants will have no problems
-parsing and executing it correctly.
+On UNIX-based systems, a convenient method of building this software is using Make.
+Since the `Makefile` is simple and portable, both the BSD and [GNU make](https://www.gnu.org/software/make/) variants will have no problems parsing and executing it correctly.
 
 The simplest invocation is
-
 ~~~sh
 make
 ~~~
+that will use the default values for all flags as provided in the `Makefile`.
 
-which will use the default values for all flags as provided in the Makefile.
+Overriding any of the following variables is supported by exporting a variable with the same name and your desired content to the environment:
+* `CC`
+* `CFLAGS`
+* `LDFLAGS`
+* `PREFIX`
+* `BIN` (the directory into which the resulting binary will be installed)
+* `MAN` (the directory into which the man page will be installed)
+* `INSTALL` (`install(1)` program used to create directories and copy files)
 
-Overriding any of the following variables is supported by exporting a variable
-with the same name and your desired content to the environment:
-
-  * `CC`
-  * `CFLAGS`
-  * `LDFLAGS`
-  * `PREFIX`
-  * `BIN` (the directory into which the resulting binary will be installed)
-  * `MAN` (the directory into which the man page will be installed)
-  * `INSTALL` (`install(1)` program used to create directories and copy files)
-
-Both example calls are equivalent and will build the software with the
-specified compiler and custom compiler flags:
-
+Both example calls are equivalent and will build the software with the specified compiler and custom compiler flags:
 ~~~sh
 make CC='clang' CFLAGS='-O2 -pipe -g3 -ggdb3' LDFLAGS='-L/very/special/directory -flto'
 ~~~
@@ -63,15 +55,12 @@ export LDFLAGS='-L/very/special/directory -flto'
 make
 ~~~
 
-Lastly, the software can be installed by calling
-
+The software can be installed by running the following command:
 ~~~sh
 make install
 ~~~
 
-Or, if you prefer a different installation location, override the `PREFIX`
-variable:
-
+If you prefer a different installation location, override the `PREFIX` variable:
 ~~~sh
 make install PREFIX="${HOME}/xsct-prefix"
 ~~~
@@ -88,9 +77,11 @@ Compile the code using the following command:
 gcc -Wall -Wextra -Werror -pedantic -std=c99 -O2 -I /usr/X11R6/include xsct.c -o xsct -L /usr/X11R6/lib -lX11 -lXrandr -lm -s
 ~~~
 
-Execute xsct using the following command:
+# Usage
+
+Provided that xsct binary is located in your `$PATH`, execute it using the following command:
 ~~~sh
-./xsct 3700
+xsct 3700
 ~~~
 
 The first parameter (`3700` above) represents the color temperature.  
@@ -108,12 +99,12 @@ The following options, which can be specified before the optional temperature pa
 
 Test xsct using the following command:
 ~~~sh
-./xsct 3700 && ./xsct
+xsct 3700 && xsct
 ~~~
 
 # Resources
 
-The following website provides a table for the conversion between black-body temperatures and color pixel values:
+The following website by Mitchell Charity provides a table for the conversion between black-body temperatures and color pixel values:
 http://www.vendian.org/mncharity/dir3/blackbody/
 
 ---
