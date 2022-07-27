@@ -23,6 +23,66 @@ Minor modifications were made in order to get sct to:
 
 # Installation
 
+## Make-based
+
+On UNIX-based systems, a convenient method of building this software is using
+Make. Since the `Makefile` is simple and portable, both the BSD and
+[GNU make](https://www.gnu.org/software/make/) variants will have no problems
+parsing and executing it correctly.
+
+The simplest invocation is
+
+~~~sh
+make
+~~~
+
+which will use the default values for all flags as provided in the Makefile.
+
+Overriding any of the following variables is supported by exporting a variable
+with the same name and your desired content to the environment:
+
+  * `CC`
+  * `CFLAGS`
+  * `LDFLAGS`
+  * `PREFIX`
+  * `BIN` (the directory into which the resulting binary will be installed)
+  * `MAN` (the directory into which the man page will be installed)
+  * `INSTALL` (`install(1)` program used to create directories and copy files)
+
+Both example calls are equivalent and will build the software with the
+specified compiler and custom compiler flags:
+
+~~~sh
+make CC='clang' CFLAGS='-O2 -pipe -g3 -ggdb3' LDFLAGS='-L/very/special/directory -flto'
+~~~
+
+~~~sh
+export CC='clang'
+export CFLAGS='-O2 -pipe -g3 -ggdb3'
+export LDFLAGS='-L/very/special/directory -flto'
+make
+~~~
+
+Lastly, the software can be installed by calling
+
+~~~sh
+make install
+~~~
+
+Or, if you prefer a different installation location, override the `PREFIX`
+variable:
+
+~~~sh
+make install PREFIX="${HOME}/xsct-prefix"
+~~~
+
+~~~sh
+export PREFIX="${HOME}/xsct-prefix"
+make install
+~~~
+
+## Manual compilation
+
 Compile the code using the following command:
 ~~~sh
 gcc -Wall -Wextra -Werror -pedantic -std=c99 -O2 -I /usr/X11R6/include xsct.c -o xsct -L /usr/X11R6/lib -lX11 -lXrandr -lm -s
