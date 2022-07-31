@@ -1,7 +1,6 @@
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/faf0/sct)
 ![GitHub Release Date](https://img.shields.io/github/release-date/faf0/sct)
 ![GitHub repo size](https://img.shields.io/github/repo-size/faf0/sct)
-![GitHub all releases](https://img.shields.io/github/downloads/faf0/sct/total)
 ![GitHub](https://img.shields.io/github/license/faf0/sct)  
 
 # About
