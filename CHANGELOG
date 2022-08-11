@@ -1,5 +1,8 @@
 PROJECT: https://github.com/faf0/sct
 
+1.9: zvezdochiot on 15 Dec 2022
+* Add [brightness] - linear brightness {0.0 .. 1.0}
+
 1.8.1: Ionic and faf0 on 27 Jul 2022
 * Allow Makefile default settings to be overridden by environment variables; patch
 contributed by Ionic
