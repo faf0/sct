@@ -7,7 +7,7 @@ MAN ?= $(PREFIX)/share/man/man1
 INSTALL ?= install
 
 PROG = xsct
-SRCS = xsct.c
+SRCS = src/xsct.c
 
 LIBS = -lX11 -lXrandr -lm
 

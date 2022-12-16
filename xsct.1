@@ -1,10 +1,11 @@
-.TH xsct 1 "Jun 2022" "1.8" "User Manual"
+.TH xsct 1 "Dec 2022" "1.9" "User Manual"
 .SH NAME
 xsct \- X11 set screen color temperature
 .SH SYNOPSIS
 .B xsct 
 [options] 
 .I [temperature]
+.I [brightness]
 
 .SH DESCRIPTION
 .B xsct
@@ -32,7 +33,10 @@ Black body temperature
 .br
 If the value is 0, xsct sets the color temperature to the default of 6500
 .br
-If no arguments are passed, xsct estimates the current display temperature
+If no arguments are passed, xsct estimates the current display temperature and brightness
+.TP
+.I [brightness]
+Linear brightness between 0.0 (inclusive) and 1.0 (inclusive). The default value is 1.0 if no parameter is passed.
 
 .SH AUTHOR
 xsct is based on sct by Ted Unangst <tedu@openbsd.org>
