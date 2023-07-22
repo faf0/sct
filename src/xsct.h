@@ -20,6 +20,7 @@
 #define XSCT_VERSION "1.9"
 
 #define TEMPERATURE_NORM    6500
+#define TEMPERATURE_NIGHT   4500
 #define TEMPERATURE_ZERO    700
 #define GAMMA_MULT          65535.0
 // Approximation of the `redshift` table from
