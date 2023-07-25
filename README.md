@@ -98,6 +98,7 @@ The following options, which can be specified before the optional temperature pa
 - `-v`, `--verbose`: display debugging information
 - `-d <delta>`, `--delta <delta>`: shift temperature by the temperature value
 - `-s <screen>`, `--screen <screen>` `N`: use the screen specified by given zero-based index
+- `-t`, `--toggle`: toggle between night and day temperature
 - `-c <crtc>`, `--crtc <crtc>` `N`: use the CRTC specified by given zero-based index
 
 Test xsct using the following command:

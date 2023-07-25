@@ -225,20 +225,25 @@ int main(int argc, char **argv)
     }
     else
     {
-      /* Check if the temp is above 100 less than the norm and change to NIGHT if it is */
-      /* The threashold was chosen to give some room for varients in temp */
-      if (toggle == 1) {
-        screen = 0;
-        temp = get_sct_for_screen(dpy, screen, crtc_specified, fdebug);
-        if (temp.temp > (TEMPERATURE_NORM - 100)) {
-          temp.temp = TEMPERATURE_NIGHT;
-          sct_for_screen(dpy, screen, crtc_specified, temp, fdebug);
+      // Check if the temp is above 100 less than the norm and change to NIGHT if it is
+      // The threashold was chosen to give some room for varients in temp
+        if (toggle != 0)
+        {
+            for (screen = screen_first; screen <= screen_last; screen++)
+            {
+
+            temp = get_sct_for_screen(dpy, screen, crtc_specified, fdebug);
+            if (temp.temp > (TEMPERATURE_NORM - 100))
+            {
+                temp.temp = TEMPERATURE_NIGHT;
+            }
+            else
+            {
+                temp.temp = TEMPERATURE_NORM;
+            }
+                sct_for_screen(dpy, screen, crtc_specified, temp, fdebug);
+            }
         }
-        else {
-          temp.temp = TEMPERATURE_NORM;
-          sct_for_screen(dpy, screen, crtc_specified, temp, fdebug);
-        }
-      }
         if (temp.brightness < 0.0) temp.brightness = 1.0;
         if (screen_specified >= 0)
         {
