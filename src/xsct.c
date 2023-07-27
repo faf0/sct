@@ -17,6 +17,7 @@ static void usage(char * pname)
            "\t-v, --verbose \t xsct will display debugging information\n"
            "\t-d, --delta\t xsct will shift temperature by the temperature value\n"
            "\t-s, --screen N\t xsct will only select screen specified by given zero-based index\n"
+           "\t-t, --toggle \t xsct will toggle between 'day' and 'night' mode\n"
            "\t-c, --crtc N\t xsct will only select CRTC specified by given zero-based index\n", XSCT_VERSION, pname);
 }
 
@@ -161,7 +162,7 @@ int main(int argc, char **argv)
     int i, screen, screens;
     int screen_specified, screen_first, screen_last, crtc_specified;
     struct temp_status temp;
-    int fdebug = 0, fdelta = 0, fhelp = 0;
+    int fdebug = 0, fdelta = 0, fhelp = 0, toggle = 0;
     Display *dpy = XOpenDisplay(NULL);
 
     if (!dpy)
@@ -182,6 +183,7 @@ int main(int argc, char **argv)
         if ((strcmp(argv[i],"-h") == 0) || (strcmp(argv[i],"--help") == 0)) fhelp = 1;
         else if ((strcmp(argv[i],"-v") == 0) || (strcmp(argv[i],"--verbose") == 0)) fdebug = 1;
         else if ((strcmp(argv[i],"-d") == 0) || (strcmp(argv[i],"--delta") == 0)) fdelta = 1;
+        else if ((strcmp(argv[i],"-t") == 0) || (strcmp(argv[i],"--toggle") == 0)) toggle = 1;
         else if ((strcmp(argv[i],"-s") == 0) || (strcmp(argv[i],"--screen") == 0))
         {
             i++;
@@ -223,6 +225,24 @@ int main(int argc, char **argv)
     }
     else
     {
+        // Check if the temp is above 100 less than the norm and change to NIGHT if it is
+        // The threashold was chosen to give some room for varients in temp
+        if (toggle != 0)
+        {
+            for (screen = screen_first; screen <= screen_last; screen++)
+            {
+                temp = get_sct_for_screen(dpy, screen, crtc_specified, fdebug);
+                if (temp.temp > (TEMPERATURE_NORM - 100))
+                {
+                    temp.temp = TEMPERATURE_NIGHT;
+                }
+                else
+                {
+                    temp.temp = TEMPERATURE_NORM;
+                }
+                sct_for_screen(dpy, screen, crtc_specified, temp, fdebug);
+            }
+        }
         if (temp.brightness < 0.0) temp.brightness = 1.0;
         if (screen_specified >= 0)
         {
