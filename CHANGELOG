@@ -1,5 +1,9 @@
 PROJECT: https://github.com/faf0/sct
 
+2.0: fac3plant on 27 Jul 2023
+* Option --toggle added to toggle between night (4500 K) and day (6500 K)
+temperature
+
 1.9: zvezdochiot on 15 Dec 2022
 * Add [brightness] - linear brightness {0.0 .. 1.0}
 
