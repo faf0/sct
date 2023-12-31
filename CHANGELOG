@@ -1,5 +1,8 @@
 PROJECT: https://github.com/faf0/sct
 
+2.1: carlpitt on 31 Dec 2023
+* Optimized code, eliminating compiler warnings
+
 2.0: fac3plant on 27 Jul 2023
 * Option --toggle added to toggle between night (4500 K) and day (6500 K)
 temperature
