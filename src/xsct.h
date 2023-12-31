@@ -50,7 +50,7 @@ struct temp_status
     double brightness;
 };
 
-static void usage(char * pname);
+static void usage(const char * pname);
 static double DoubleTrim(double x, double a, double b);
 static struct temp_status get_sct_for_screen(Display *dpy, int screen, int icrtc, int fdebug);
 static void sct_for_screen(Display *dpy, int screen, int icrtc, struct temp_status temp, int fdebug);
