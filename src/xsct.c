@@ -6,7 +6,7 @@
 
 #include "xsct.h"
 
-static void usage(char * pname)
+static void usage(const char *const pname)
 {
     printf("Xsct (%s)\n"
            "Usage: %s [options] [temperature] [brightness]\n"
@@ -23,7 +23,7 @@ static void usage(char * pname)
 
 static double DoubleTrim(double x, double a, double b)
 {
-    double buff[3] = {a, x, b};
+    const double buff[3] = {a, x, b};
     return buff[ (int)(x > a) + (int)(x > b) ];
 }
 
@@ -34,10 +34,9 @@ static struct temp_status get_sct_for_screen(Display *dpy, int screen, int icrtc
 
     int n, c;
     double t = 0.0;
-    double gammar = 0.0, gammag = 0.0, gammab = 0.0, gammad = 0.0;
+    double gammar = 0.0, gammag = 0.0, gammab = 0.0;
     struct temp_status temp;
     temp.temp = 0;
-    temp.brightness = 1.0;
 
     n = res->ncrtc;
     if ((icrtc >= 0) && (icrtc < n))
@@ -70,7 +69,7 @@ static struct temp_status get_sct_for_screen(Display *dpy, int screen, int icrtc
         temp.brightness /= BRIGHTHESS_DIV;
         temp.brightness = DoubleTrim(temp.brightness, 0.0, 1.0);
         if (fdebug > 0) fprintf(stderr, "DEBUG: Gamma: %f, %f, %f, brightness: %f\n", gammar, gammag, gammab, temp.brightness);
-        gammad = gammab - gammar;
+        const double gammad = gammab - gammar;
         if (gammad < 0.0)
         {
             if (gammab > 0.0)
@@ -97,7 +96,7 @@ static struct temp_status get_sct_for_screen(Display *dpy, int screen, int icrtc
 
 static void sct_for_screen(Display *dpy, int screen, int icrtc, struct temp_status temp, int fdebug)
 {
-    double t = 0.0, b = 1.0, g = 0.0, gammar, gammag, gammab;
+    double t = 0.0, b = 1.0, gammar, gammag, gammab;
     int n, c;
     Window root = RootWindow(dpy, screen);
     XRRScreenResources *res = XRRGetScreenResourcesCurrent(dpy, root);
@@ -109,7 +108,7 @@ static void sct_for_screen(Display *dpy, int screen, int icrtc, struct temp_stat
         gammar = 1.0;
         if (temp.temp > TEMPERATURE_ZERO)
         {
-            g = log(t - TEMPERATURE_ZERO);
+            const double g = log(t - TEMPERATURE_ZERO);
             gammag = DoubleTrim(GAMMA_K0GR + GAMMA_K1GR * g, 0.0, 1.0);
             gammab = DoubleTrim(GAMMA_K0BR + GAMMA_K1BR * g, 0.0, 1.0);
         }
@@ -121,7 +120,7 @@ static void sct_for_screen(Display *dpy, int screen, int icrtc, struct temp_stat
     }
     else
     {
-        g = log(t - (TEMPERATURE_NORM - TEMPERATURE_ZERO));
+        const double g = log(t - (TEMPERATURE_NORM - TEMPERATURE_ZERO));
         gammar = DoubleTrim(GAMMA_K0RB + GAMMA_K1RB * g, 0.0, 1.0);
         gammag = DoubleTrim(GAMMA_K0GB + GAMMA_K1GB * g, 0.0, 1.0);
         gammab = 1.0;
@@ -144,7 +143,7 @@ static void sct_for_screen(Display *dpy, int screen, int icrtc, struct temp_stat
 
         for (i = 0; i < size; i++)
         {
-            g = GAMMA_MULT * b * (double)i / (double)size;
+            const double g = GAMMA_MULT * b * (double)i / (double)size;
             crtc_gamma->red[i] = (unsigned short int)(g * gammar + 0.5);
             crtc_gamma->green[i] = (unsigned short int)(g * gammag + 0.5);
             crtc_gamma->blue[i] = (unsigned short int)(g * gammab + 0.5);
