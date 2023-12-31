@@ -17,7 +17,7 @@
 #ifndef __XSCT_H
 #define __XSCT_H
 
-#define XSCT_VERSION "2.0"
+#define XSCT_VERSION "2.1"
 
 #define TEMPERATURE_NORM    6500
 #define TEMPERATURE_NIGHT   4500
