@@ -96,10 +96,24 @@ If `xsct` is called without parameters, the current display temperature and brig
 The following options, which can be specified before the optional temperature parameter, are supported:
 - `-h`, `--help`: display the help page
 - `-v`, `--verbose`: display debugging information
-- `-d <delta>`, `--delta <delta>`: shift temperature by the temperature value
+- `-d <delta>`, `--delta <delta>`: temperature and brightness are shifted relatively and not absolutely
 - `-s <screen>`, `--screen <screen>` `N`: use the screen specified by given zero-based index
 - `-t`, `--toggle`: toggle between night and day temperature
 - `-c <crtc>`, `--crtc <crtc>` `N`: use the CRTC specified by given zero-based index
+
+Here are a few examples of how to control the brightness and the temperature using `xsct`:
+
+| Command             | Explanation                                                             |
+|---------------------|-------------------------------------------------------------------------|
+| `xsct`              | Estimate the current display temperature and brightness                 |
+| `xsct 0`            | Set the temperature to `6500` and the brightness to `1.0` (default)     |
+| `xsct 3700 0.9`     | Set the temperature to `3700` and the brightness to `0.9`               |
+| `xsct 3700`         | Set the temperature to `3700` and the brightness to `1.0` (default)     |
+| `xsct -d 1000`      | Increase the temperature by `1000`                                      |
+| `xsct -d -500`      | Decrease the temperature by `500`                                       |
+| `xsct -d 1000 0.2`  | Increase the temperature by `1000` and increase the brightness by `0.2` |
+| `xsct -d -500 -0.3` | Decrease the temperature by `500` and decrease the brightness by `0.3`  |
+| `xsct -d 0 0.2`     | Increase the brightness by `0.2`                                        |
 
 Test xsct using the following command:
 ~~~sh

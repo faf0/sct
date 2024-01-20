@@ -15,7 +15,7 @@ static void usage(const char *const pname)
            "Options:\n"
            "\t-h, --help \t xsct will display this usage information\n"
            "\t-v, --verbose \t xsct will display debugging information\n"
-           "\t-d, --delta\t xsct will shift temperature by the temperature value\n"
+           "\t-d, --delta\t xsct will consider temperature and brightness parameters as relative shifts\n"
            "\t-s, --screen N\t xsct will only select screen specified by given zero-based index\n"
            "\t-t, --toggle \t xsct will toggle between 'day' and 'night' mode\n"
            "\t-c, --crtc N\t xsct will only select CRTC specified by given zero-based index\n", XSCT_VERSION, pname);
@@ -156,6 +156,25 @@ static void sct_for_screen(Display *dpy, int screen, int icrtc, struct temp_stat
     XFree(res);
 }
 
+static void bound_temp(struct temp_status *const temp)
+{
+    if (temp->temp < TEMPERATURE_ZERO)
+    {
+        fprintf(stderr, "WARNING! Temperatures below %d cannot be displayed.\n", TEMPERATURE_ZERO);
+        temp->temp = TEMPERATURE_ZERO;
+    }
+    if (temp->brightness < 0.0)
+    {
+        fprintf(stderr, "WARNING! Brightness values below 0.0 cannot be displayed.\n");
+        temp->brightness = 0.0;
+    }
+    else if (temp->brightness > 1.0)
+    {
+        fprintf(stderr, "WARNING! Brightness values above 1.0 cannot be displayed.\n");
+        temp->brightness = 1.0;
+    }
+}
+
 int main(int argc, char **argv)
 {
     int i, screen, screens;
@@ -176,7 +195,7 @@ int main(int argc, char **argv)
     screen_specified = -1;
     crtc_specified = -1;
     temp.temp = DELTA_MIN;
-    temp.brightness = -1.0;
+    temp.brightness = DELTA_MIN;
     for (i = 1; i < argc; i++)
     {
         if ((strcmp(argv[i],"-h") == 0) || (strcmp(argv[i],"--help") == 0)) fhelp = 1;
@@ -206,7 +225,7 @@ int main(int argc, char **argv)
             }
         }
         else if (temp.temp == DELTA_MIN) temp.temp = atoi(argv[i]);
-        else if (temp.brightness < 0.0) temp.brightness = atof(argv[i]);
+        else if (temp.brightness == DELTA_MIN) temp.brightness = atof(argv[i]);
         else
         {
             fprintf(stderr, "ERROR! Unknown parameter: %s\n!", argv[i]);
@@ -242,13 +261,13 @@ int main(int argc, char **argv)
                 sct_for_screen(dpy, screen, crtc_specified, temp, fdebug);
             }
         }
-        if (temp.brightness < 0.0) temp.brightness = 1.0;
+        if ((temp.brightness == DELTA_MIN) && (fdelta == 0)) temp.brightness = 1.0;
         if (screen_specified >= 0)
         {
             screen_first = screen_specified;
             screen_last = screen_specified;
         }
-        if ((temp.temp < 0) && (fdelta == 0))
+        if ((temp.temp == DELTA_MIN) && (fdelta == 0))
         {
             // No arguments, so print estimated temperature for each screen
             for (screen = screen_first; screen <= screen_last; screen++)
@@ -266,11 +285,10 @@ int main(int argc, char **argv)
                 {
                     temp.temp = TEMPERATURE_NORM;
                 }
-                else if (temp.temp < TEMPERATURE_ZERO)
+                else
                 {
-                    fprintf(stderr, "WARNING! Temperatures below %d cannot be displayed.\n", TEMPERATURE_ZERO);
-                    temp.temp = TEMPERATURE_ZERO;
-                }
+                    bound_temp(&temp);
+                }             
                 for (screen = screen_first; screen <= screen_last; screen++)
                 {
                    sct_for_screen(dpy, screen, crtc_specified, temp, fdebug);
@@ -278,17 +296,21 @@ int main(int argc, char **argv)
             }
             else
             {
-                // Delta mode: Shift temperature of each screen by given value
-                for (screen = screen_first; screen <= screen_last; screen++)
+                // Delta mode: Shift temperature and optionally brightness of each screen by given value
+                if (temp.temp == DELTA_MIN)
                 {
-                    struct temp_status tempd = get_sct_for_screen(dpy, screen, crtc_specified, fdebug);
-                    tempd.temp += temp.temp;
-                    if (tempd.temp < TEMPERATURE_ZERO)
+                    fprintf(stderr, "ERROR! Required temperature value for delta not specified!\n");
+                }
+                else
+                {
+                    for (screen = screen_first; screen <= screen_last; screen++)
                     {
-                        fprintf(stderr, "WARNING! Temperatures below %d cannot be displayed.\n", TEMPERATURE_ZERO);
-                        tempd.temp = TEMPERATURE_ZERO;
+                        struct temp_status tempd = get_sct_for_screen(dpy, screen, crtc_specified, fdebug);
+                        tempd.temp += temp.temp;
+                        if (temp.brightness != DELTA_MIN) tempd.brightness += temp.brightness;
+                        bound_temp(&tempd);
+                        sct_for_screen(dpy, screen, crtc_specified, tempd, fdebug);
                     }
-                    sct_for_screen(dpy, screen, crtc_specified, tempd, fdebug);
                 }
             }
         }
