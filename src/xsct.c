@@ -156,7 +156,7 @@ static void sct_for_screen(Display *dpy, int screen, int icrtc, struct temp_stat
     XFree(res);
 }
 
-void bound_temp(struct temp_status *const temp)
+static void bound_temp(struct temp_status *const temp)
 {
     if (temp->temp < TEMPERATURE_ZERO)
     {
@@ -307,7 +307,7 @@ int main(int argc, char **argv)
                     {
                         struct temp_status tempd = get_sct_for_screen(dpy, screen, crtc_specified, fdebug);
                         tempd.temp += temp.temp;
-                        if (!(temp.brightness == DELTA_MIN)) tempd.brightness += temp.brightness;
+                        if (temp.brightness != DELTA_MIN) tempd.brightness += temp.brightness;
                         bound_temp(&tempd);
                         sct_for_screen(dpy, screen, crtc_specified, tempd, fdebug);
                     }
