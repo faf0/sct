@@ -21,10 +21,11 @@ static void usage(const char *const pname)
            "\t-c, --crtc N\t xsct will only select CRTC specified by given zero-based index\n", XSCT_VERSION, pname);
 }
 
-static double DoubleTrim(double x, double a, double b)
+static double DoubleTrim(double input, double low, double high)
 {
-    const double buff[3] = {a, x, b};
-    return buff[ (int)(x > a) + (int)(x > b) ];
+	if (input > high) return high;
+	if (input < low) return low;
+	return input;
 }
 
 static struct temp_status get_sct_for_screen(Display *dpy, int screen, int icrtc, int fdebug)
