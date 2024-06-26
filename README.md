@@ -122,7 +122,8 @@ xsct 3700 0.9 && xsct
 
 # Quirks
 
-- If the delta mode is used to decrease the brightness to below 0.0 and then increased above 0.0, the temperature will reset to 6500K, regardless of whatever it was before the brightness reached 0. This is because the temperature is reset to 0K when the brightness is set equal to or below 0.0 (to verify this, you can run `xsct 0 0.0; xsct`).
+If the delta mode is used to decrease the brightness to below 0.0 and then increased above 0.0, the temperature will reset to 6500 K, regardless of whatever it was before the brightness reached 0.
+This is because the temperature is reset to 0 K when the brightness is set equal to or below 0.0 (to verify this, you can run `xsct 0 0.0; xsct`).
 
 # Resources
 

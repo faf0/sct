@@ -161,7 +161,7 @@ static void bound_temp(struct temp_status *const temp)
     if (temp->temp <= 0)
     {
         // identical behavior when xsct is called in absolute mode with temp == 0
-        fprintf(stderr, "WARNING! Temperatures below %d cannot be displayed.\n", TEMPERATURE_ZERO);
+        fprintf(stderr, "WARNING! Temperatures below %d cannot be displayed.\n", 0);
         temp->temp = TEMPERATURE_NORM;
     }
     else if (temp->temp < TEMPERATURE_ZERO)
