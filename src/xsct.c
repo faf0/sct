@@ -158,11 +158,18 @@ static void sct_for_screen(Display *dpy, int screen, int icrtc, struct temp_stat
 
 static void bound_temp(struct temp_status *const temp)
 {
-    if (temp->temp < TEMPERATURE_ZERO)
+    if (temp->temp <= 0)
+    {
+        // identical behavior when xsct is called in absolute mode with temp == 0
+        fprintf(stderr, "WARNING! Temperatures below %d cannot be displayed.\n", 0);
+        temp->temp = TEMPERATURE_NORM;
+    }
+    else if (temp->temp < TEMPERATURE_ZERO)
     {
         fprintf(stderr, "WARNING! Temperatures below %d cannot be displayed.\n", TEMPERATURE_ZERO);
         temp->temp = TEMPERATURE_ZERO;
     }
+
     if (temp->brightness < 0.0)
     {
         fprintf(stderr, "WARNING! Brightness values below 0.0 cannot be displayed.\n");
@@ -297,18 +304,21 @@ int main(int argc, char **argv)
             else
             {
                 // Delta mode: Shift temperature and optionally brightness of each screen by given value
-                if (temp.temp == DELTA_MIN)
+                if (temp.temp == DELTA_MIN || temp.brightness == DELTA_MIN)
                 {
-                    fprintf(stderr, "ERROR! Required temperature value for delta not specified!\n");
+                    fprintf(stderr, "ERROR! Temperature and brightness delta must both be specified!\n");
                 }
                 else
                 {
                     for (screen = screen_first; screen <= screen_last; screen++)
                     {
                         struct temp_status tempd = get_sct_for_screen(dpy, screen, crtc_specified, fdebug);
+
                         tempd.temp += temp.temp;
-                        if (temp.brightness != DELTA_MIN) tempd.brightness += temp.brightness;
+                        tempd.brightness += temp.brightness;
+
                         bound_temp(&tempd);
+
                         sct_for_screen(dpy, screen, crtc_specified, tempd, fdebug);
                     }
                 }
