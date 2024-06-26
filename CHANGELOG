@@ -1,5 +1,11 @@
 PROJECT: https://github.com/faf0/sct
 
+2.3: j-silv on 25 Jun 2024
+* Address edge case where temp info is reset when brightness goes below 0.0 in
+delta mode
+* Add small fix to make sure both temp and brightness are provided
+when in delta mode
+
 2.2: j-silv on 20 Jan 2024
 * Option --delta now allows for shifting the brightness, in addition to the
 temperature
